@@ -11,6 +11,7 @@ implementation:
     - |
       def convert_doccano_fomart_to_spacy(filepath):
           import sys, subprocess;
+          subprocess.run([sys.executable, '-m', 'pip', 'install', 'gcsfs'])
           subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
           subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
           import json
@@ -20,9 +21,12 @@ implementation:
           import warnings
           from pathlib import Path
           import spacy
+          import gcsfs
 
-          with open(filepath, 'rb') as fp:
-              data = fp.readlines()
+          fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
+          with fs.open('gs://nerdoc/test_data.json', 'rb') as f:
+              data = f.readlines()
+              print(data)
 
           training_data = []
           for record in data:
