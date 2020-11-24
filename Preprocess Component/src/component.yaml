@@ -26,7 +26,6 @@ implementation:
           fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
           with fs.open('gs://nerdoc/test_data.json', 'rb') as f:
               data = f.readlines()
-              print(data)
 
           training_data = []
           for record in data:
