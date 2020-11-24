@@ -1,0 +1,49 @@
+name: Convert doccano fomart to spacy
+inputs:
+- {name: filepath}
+implementation:
+  container:
+    image: python:3.7
+    command:
+    - python3
+    - -u
+    - -c
+    - |
+      def convert_doccano_fomart_to_spacy(filepath):
+          import sys, subprocess;
+          subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
+          subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
+          import json
+          import numpy as np
+          import plac
+          import random
+          import warnings
+          from pathlib import Path
+          import spacy
+
+          with open(filepath, 'rb') as fp:
+              data = fp.readlines()
+
+          training_data = []
+          for record in data:
+              entities = []
+              read_record = json.loads(record)
+              text = read_record['text']
+              entities_record = read_record['labels']
+
+              for start, end, label in entities_record:
+                  entities.append((start, end, label))
+
+              training_data.append((text, {"entities": entities}))
+
+          return training_data
+
+      import argparse
+      _parser = argparse.ArgumentParser(prog='Convert doccano fomart to spacy', description='')
+      _parser.add_argument("--filepath", dest="filepath", type=str, required=True, default=argparse.SUPPRESS)
+      _parsed_args = vars(_parser.parse_args())
+
+      _outputs = convert_doccano_fomart_to_spacy(**_parsed_args)
+    args:
+    - --filepath
+    - {inputValue: filepath}
