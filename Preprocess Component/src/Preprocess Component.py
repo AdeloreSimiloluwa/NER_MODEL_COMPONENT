@@ -19,8 +19,9 @@ def convert_doccano_fomart_to_spacy(filepath):
     from pathlib import Path
     import spacy
 
-    with open(filepath, 'rb') as fp:
-        data = fp.readlines()
+    fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
+    with fs.open('gs://nerdoc/test_data.json', 'rb') as f:
+         data = f.readlines()
 
     training_data = []
     for record in data:
