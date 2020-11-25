@@ -1,8 +1,6 @@
-name: Train spacy
+name: Hello world 2
 inputs:
-- {name: TRAIN_DATA}
-- {name: OUTPUT_PATH}
-- {name: iterations, default: '2', optional: true}
+- {name: a}
 implementation:
   container:
     image: python:3.7
@@ -10,55 +8,16 @@ implementation:
     - python3
     - -u
     - -c
-    - "def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations = 2):\n\n    def convert_doccano_fomart_to_spacy(filepath):\n\
-      \        import sys, subprocess;\n        subprocess.run([sys.executable, '-m',\
-      \ 'pip', 'install', 'spacy==2.0.18'])\n        subprocess.run([sys.executable,\
-      \ '-m', 'pip', 'install', 'gcsfs'])\n        import json\n        import gcsfs\n\
-      \        import numpy as np\n        import plac\n        import random\n  \
-      \      import warnings\n        from pathlib import Path\n        import spacy\n\
-      \n        fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')\n        with\
-      \ fs.open(filepath, 'rb') as f:\n             data = f.readlines()\n\n     \
-      \   training_data = []\n        for record in data:\n            entities =\
-      \ []\n            read_record = json.loads(record)\n            text = read_record['text']\n\
-      \            entities_record = read_record['labels']\n\n            for start,\
-      \ end, label in entities_record:\n                entities.append((start, end,\
-      \ label))\n\n            training_data.append((text, {\"entities\": entities}))\n\
-      \n        return training_data\n\n    #Converting JSON1 file to Spacy tuples\
-      \ format\n    import sys, subprocess\n    subprocess.run([sys.executable, '-m',\
-      \ 'pip', 'install', 'spacy==2.0.18'])\n    subprocess.run([sys.executable, '-m',\
-      \ 'pip', 'install', 'kfp'])\n    import json\n    import numpy as np\n    import\
-      \ plac\n    import random\n    import warnings\n    from pathlib import Path\n\
-      \    import spacy\n    import logging\n    from spacy.util import minibatch,\
-      \ compounding\n    from spacy.gold import GoldParse\n    from spacy.scorer import\
-      \ Scorer\n    from kfp.components import create_component_from_func\n\n    filepath\
-      \ ='gs://nerdoc/test_data.json1'\n    TRAIN_DATA = convert_doccano_fomart_to_spacy(filepath)\n\
-      \    nlp = spacy.blank('en') \n    if 'ner' not in nlp.pipe_names:\n       \
-      \ ner = nlp.create_pipe('ner')\n        nlp.add_pipe(ner, last=True)\n\n   \
-      \ for _, annotations in TRAIN_DATA:\n         for ent in annotations.get('entities'):\n\
-      \            ner.add_label(ent[2])\n\n    other_pipes = [pipe for pipe in nlp.pipe_names\
-      \ if pipe != 'ner']\n    with nlp.disable_pipes(*other_pipes): \n        optimizer\
-      \ = nlp.begin_training()\n        for itn in range(iterations):\n          \
-      \  print(\"Starting iteration \" + str(itn))\n            random.shuffle(TRAIN_DATA)\n\
-      \            losses = {}\n            for text, annotations in TRAIN_DATA:\n\
-      \                try:\n                    nlp.update(\n                   \
-      \     [text],  \n                        [annotations],  \n                \
-      \        drop=0.2,  \n                        sgd=optimizer,  \n           \
-      \             losses=losses)\n                except Exception as error:\n \
-      \                   print(error)\n                    continue\n           \
-      \ print(losses)\n    return nlp\n\nimport argparse\n_parser = argparse.ArgumentParser(prog='Train\
-      \ spacy', description='')\n_parser.add_argument(\"--TRAIN-DATA\", dest=\"TRAIN_DATA\"\
-      , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
-      --OUTPUT-PATH\", dest=\"OUTPUT_PATH\", type=str, required=True, default=argparse.SUPPRESS)\n\
-      _parser.add_argument(\"--iterations\", dest=\"iterations\", type=str, required=False,\
-      \ default=argparse.SUPPRESS)\n_parsed_args = vars(_parser.parse_args())\n\n\
-      _outputs = train_spacy(**_parsed_args)\n"
+    - |
+      def hello_world_2(a):
+          return a
+
+      import argparse
+      _parser = argparse.ArgumentParser(prog='Hello world 2', description='')
+      _parser.add_argument("--a", dest="a", type=str, required=True, default=argparse.SUPPRESS)
+      _parsed_args = vars(_parser.parse_args())
+
+      _outputs = hello_world_2(**_parsed_args)
     args:
-    - --TRAIN-DATA
-    - {inputValue: TRAIN_DATA}
-    - --OUTPUT-PATH
-    - {inputValue: OUTPUT_PATH}
-    - if:
-        cond: {isPresent: iterations}
-        then:
-        - --iterations
-        - {inputValue: iterations}
+    - --a
+    - {inputValue: a}
