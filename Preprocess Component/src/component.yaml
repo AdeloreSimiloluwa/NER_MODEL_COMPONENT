@@ -11,9 +11,9 @@ implementation:
     - |
       def convert_doccano_fomart_to_spacy(filepath):
           import sys, subprocess;
-          subprocess.run([sys.executable, '-m', 'pip', 'install', 'gcsfs'])
           subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
           subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
+          subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])
           import json
           import numpy as np
           import plac
@@ -21,17 +21,18 @@ implementation:
           import warnings
           from pathlib import Path
           import spacy
-          import gcsfs
+          from kfp.components import create_component_from_func
 
-          fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
-          with fs.open(filepath, 'rb') as f:
-              data = f.readlines()
+          with open(filepath, 'rb') as fp:
+              data = fp.readlines()
 
           training_data = []
           for record in data:
               entities = []
               read_record = json.loads(record)
               text = read_record['text']
+              #text = text.replace('\\n', '\n')
+              #print(text)
               entities_record = read_record['labels']
 
               for start, end, label in entities_record:
