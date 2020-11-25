@@ -10,8 +10,9 @@ from kfp.components import create_component_from_func
 def convert_doccano_fomart_to_spacy(filepath):
     import sys, subprocess;
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
+    subprocess.run([sys.executable, '-m', 'pip', 'install', 'gcsfs'])
     import json
+    import gcsfs
     import numpy as np
     import plac
     import random
