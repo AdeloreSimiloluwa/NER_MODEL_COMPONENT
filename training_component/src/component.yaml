@@ -1,7 +1,7 @@
 name: Train spacy
 inputs:
 - {name: TRAIN_DATA, default: '[]', optional: true}
-- {name: OUTPUT_PATH, default: 'C:\Users\Wale\custom_ner_model', optional: true}
+- {name: OUTPUT_PATH, default: '/content/custom_ner_model', optional: true}
 - {name: iterations, default: '2', optional: true}
 implementation:
   container:
