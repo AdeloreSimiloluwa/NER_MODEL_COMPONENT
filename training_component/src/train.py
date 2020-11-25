@@ -9,7 +9,7 @@ def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):
     #Converting JSON1 file to Spacy tuples format
     import sys, subprocess;
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-#     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
+    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])
     import json
     import numpy as np
