@@ -23,8 +23,9 @@ implementation:
           import spacy
           from kfp.components import create_component_from_func
 
-          with open(filepath, 'rb') as fp:
-              data = fp.readlines()
+          fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
+          with fs.open(filepath, 'rb') as f:
+              data = f.readlines()
 
           training_data = []
           for record in data:
