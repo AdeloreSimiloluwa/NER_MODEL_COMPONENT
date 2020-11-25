@@ -1,8 +1,8 @@
 name: Train spacy
 inputs:
 - {name: TRAIN_DATA, default: '[]', optional: true}
-- {name: OUTPUT_PATH, default: '/content/custom_ner_model', optional: true}
-- {name: iterations, default: '20', optional: true}
+- {name: OUTPUT_PATH, default: 'C:\Users\Wale\custom_ner_model', optional: true}
+- {name: iterations, default: '2', optional: true}
 implementation:
   container:
     image: python:3.7
@@ -10,16 +10,15 @@ implementation:
     - python3
     - -u
     - -c
-    - "def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):\n\n\
-      \    #Converting JSON1 file to Spacy tuples format\n    import sys, subprocess;\n\
+    - "def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 2):\n\n\
+      \    #Converting JSON1 file to Spacy tuples format\n    import sys, subprocess\n\
       \    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])\n\
-           subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download\
-      \ en'])\n    subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])\n\
-      \    import json\n    import numpy as np\n    import plac\n    import random\n\
-      \    import warnings\n    from pathlib import Path\n    import spacy\n    import\
-      \ logging\n    from spacy.util import minibatch, compounding\n    from spacy.gold\
-      \ import GoldParse\n    from spacy.scorer import Scorer\n    from kfp.components\
-      \ import create_component_from_func\n\n    filepath ='gs://nerdoc/test_data.json1'\n\
+      \    subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])\n    import\
+      \ json\n    import numpy as np\n    import plac\n    import random\n    import\
+      \ warnings\n    from pathlib import Path\n    import spacy\n    import logging\n\
+      \    from spacy.util import minibatch, compounding\n    from spacy.gold import\
+      \ GoldParse\n    from spacy.scorer import Scorer\n    from kfp.components import\
+      \ create_component_from_func\n\n    filepath ='gs://nerdoc/test_data.json1'\n\
       \    TRAIN_DATA = convert_doccano_fomart_to_spacy(filepath)\n    nlp = spacy.blank('en')\
       \ \n    if 'ner' not in nlp.pipe_names:\n        ner = nlp.create_pipe('ner')\n\
       \        nlp.add_pipe(ner, last=True)\n\n    for _, annotations in TRAIN_DATA:\n\
