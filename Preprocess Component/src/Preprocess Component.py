@@ -44,3 +44,5 @@ if __name__ == '__main__':
         output_component_file='component.yaml',
         base_image='python:3.7')
 
+        training_data.append((text, {"entities": entities}))
+
