@@ -1,51 +1,47 @@
-name: Hello world
+name: Convert doccano fomart to spacy
+inputs:
+- {name: filepath}
 outputs:
 - {name: Output, type: JsonArray}
 implementation:
   container:
     image: python:3.7
     command:
+    - sh
+    - -c
+    - (PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet --no-warn-script-location
+      'spacy==2.0.18' 'gcsfs' || PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install
+      --quiet --no-warn-script-location 'spacy==2.0.18' 'gcsfs' --user) && "$0" "$@"
     - python3
     - -u
     - -c
-    - |
-      def hello_world():
-          return ["a","b"]
-
-      def _serialize_json(obj) -> str:
-          if isinstance(obj, str):
-              return obj
-          import json
-          def default_serializer(obj):
-              if hasattr(obj, 'to_struct'):
-                  return obj.to_struct()
-              else:
-                  raise TypeError("Object of type '%s' is not JSON serializable and does not have .to_struct() method." % obj.__class__.__name__)
-          return json.dumps(obj, default=default_serializer, sort_keys=True)
-
-      import argparse
-      _parser = argparse.ArgumentParser(prog='Hello world', description='')
-      _parser.add_argument("----output-paths", dest="_output_paths", type=str, nargs=1)
-      _parsed_args = vars(_parser.parse_args())
-      _output_files = _parsed_args.pop("_output_paths", [])
-
-      _outputs = hello_world(**_parsed_args)
-
-      _outputs = [_outputs]
-
-      _output_serializers = [
-          _serialize_json,
-
-      ]
-
-      import os
-      for idx, output_file in enumerate(_output_files):
-          try:
-              os.makedirs(os.path.dirname(output_file))
-          except OSError:
-              pass
-          with open(output_file, 'w') as f:
-              f.write(_output_serializers[idx](_outputs[idx]))
+    - "def convert_doccano_fomart_to_spacy(filepath):\n    import json\n    import\
+      \ gcsfs\n    import numpy as np\n    import plac\n    import random\n    import\
+      \ warnings\n    from pathlib import Path\n    import spacy\n\n    fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')\n\
+      \    with fs.open(filepath, 'rb') as f:\n         data = f.readlines()\n\n \
+      \   training_data = [] \n    for record in data:\n        entities = []\n  \
+      \      read_record = json.loads(record)\n        text = read_record['text']\n\
+      \        entities_record = read_record['labels']\n\n        for start, end,\
+      \ label in entities_record:\n            entities.append((start, end, label))\n\
+      \n        training_data.append((text, {\"entities\": entities}))\n\n    return\
+      \ training_data\n\ndef _serialize_json(obj) -> str:\n    if isinstance(obj,\
+      \ str):\n        return obj\n    import json\n    def default_serializer(obj):\n\
+      \        if hasattr(obj, 'to_struct'):\n            return obj.to_struct()\n\
+      \        else:\n            raise TypeError(\"Object of type '%s' is not JSON\
+      \ serializable and does not have .to_struct() method.\" % obj.__class__.__name__)\n\
+      \    return json.dumps(obj, default=default_serializer, sort_keys=True)\n\n\
+      import argparse\n_parser = argparse.ArgumentParser(prog='Convert doccano fomart\
+      \ to spacy', description='')\n_parser.add_argument(\"--filepath\", dest=\"filepath\"\
+      , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
+      ----output-paths\", dest=\"_output_paths\", type=str, nargs=1)\n_parsed_args\
+      \ = vars(_parser.parse_args())\n_output_files = _parsed_args.pop(\"_output_paths\"\
+      , [])\n\n_outputs = convert_doccano_fomart_to_spacy(**_parsed_args)\n\n_outputs\
+      \ = [_outputs]\n\n_output_serializers = [\n    _serialize_json,\n\n]\n\nimport\
+      \ os\nfor idx, output_file in enumerate(_output_files):\n    try:\n        os.makedirs(os.path.dirname(output_file))\n\
+      \    except OSError:\n        pass\n    with open(output_file, 'w') as f:\n\
+      \        f.write(_output_serializers[idx](_outputs[idx]))\n"
     args:
+    - --filepath
+    - {inputValue: filepath}
     - '----output-paths'
     - {outputPath: Output}
