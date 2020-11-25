@@ -21,19 +21,16 @@ implementation:
           import warnings
           from pathlib import Path
           import spacy
-          from kfp.components import create_component_from_func
 
           fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
           with fs.open(filepath, 'rb') as f:
-              data = f.readlines()
+               data = f.readlines()
 
           training_data = []
           for record in data:
               entities = []
               read_record = json.loads(record)
               text = read_record['text']
-              #text = text.replace('\\n', '\n')
-              #print(text)
               entities_record = read_record['labels']
 
               for start, end, label in entities_record:
