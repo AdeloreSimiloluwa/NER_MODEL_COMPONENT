@@ -1,6 +1,6 @@
 name: Hello world
 outputs:
-- {name: Output, type: String}
+- {name: Output, type: JsonArray}
 implementation:
   container:
     image: python:3.7
@@ -10,12 +10,18 @@ implementation:
     - -c
     - |
       def hello_world():
-          return "hello_world"
+          return ["a","b"]
 
-      def _serialize_str(str_value: str) -> str:
-          if not isinstance(str_value, str):
-              raise TypeError('Value "{}" has type "{}" instead of str.'.format(str(str_value), str(type(str_value))))
-          return str_value
+      def _serialize_json(obj) -> str:
+          if isinstance(obj, str):
+              return obj
+          import json
+          def default_serializer(obj):
+              if hasattr(obj, 'to_struct'):
+                  return obj.to_struct()
+              else:
+                  raise TypeError("Object of type '%s' is not JSON serializable and does not have .to_struct() method." % obj.__class__.__name__)
+          return json.dumps(obj, default=default_serializer, sort_keys=True)
 
       import argparse
       _parser = argparse.ArgumentParser(prog='Hello world', description='')
@@ -28,7 +34,7 @@ implementation:
       _outputs = [_outputs]
 
       _output_serializers = [
-          _serialize_str,
+          _serialize_json,
 
       ]
 
