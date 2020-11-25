@@ -1,15 +1,15 @@
 from __future__ import unicode_literals, print_function
 
-TRAIN_DATA = training_data
+
 OUTPUT_PATH = '/content/custom_ner_model'
 
 ################### Train Spacy NER.###########
-def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations):
+def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):
 
     #Converting JSON1 file to Spacy tuples format
     import sys, subprocess;
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
+#     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])
     import json
     import numpy as np
@@ -24,7 +24,8 @@ def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations):
     from spacy.scorer import Scorer
     from kfp.components import create_component_from_func
 
-    TRAIN_DATA = TRAIN_DATA
+    filepath ='gs://nerdoc/test_data.json1'
+    TRAIN_DATA = convert_doccano_fomart_to_spacy(filepath)
     nlp = spacy.blank('en') 
     if 'ner' not in nlp.pipe_names:
         ner = nlp.create_pipe('ner')
@@ -57,7 +58,7 @@ def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations):
     return nlp
 
 
-trainer = train_spacy(TRAIN_DATA, OUTPUT_PATH, 20)
+trainer = train_spacy([], OUTPUT_PATH, 20)
 
     # Save our trained Model
 #Path(OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
