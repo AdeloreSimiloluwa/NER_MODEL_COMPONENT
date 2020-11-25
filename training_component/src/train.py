@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, print_function
 
-
 OUTPUT_PATH = '/content/custom_ner_model'
 
 ################### Train Spacy NER.###########
