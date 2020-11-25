@@ -2,7 +2,7 @@ name: Train spacy
 inputs:
 - {name: TRAIN_DATA}
 - {name: OUTPUT_PATH}
-- {name: iterations}
+- {name: iterations, default: '2', optional: true}
 implementation:
   container:
     image: python:3.7
@@ -10,12 +10,25 @@ implementation:
     - python3
     - -u
     - -c
-    - "def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations):\n\n    #Converting JSON1\
-      \ file to Spacy tuples format\n    import sys, subprocess\n    subprocess.run([sys.executable,\
-      \ '-m', 'pip', 'install', 'spacy==2.0.18'])\n    subprocess.run([sys.executable,\
-      \ '-m', 'pip', 'install', 'kfp'])\n    import json\n    import numpy as np\n\
-      \    import plac\n    import random\n    import warnings\n    from pathlib import\
-      \ Path\n    import spacy\n    import logging\n    from spacy.util import minibatch,\
+    - "def train_spacy(TRAIN_DATA, OUTPUT_PATH, iterations = 2):\n\n    def convert_doccano_fomart_to_spacy(filepath):\n\
+      \        import sys, subprocess;\n        subprocess.run([sys.executable, '-m',\
+      \ 'pip', 'install', 'spacy==2.0.18'])\n        subprocess.run([sys.executable,\
+      \ '-m', 'pip', 'install', 'gcsfs'])\n        import json\n        import gcsfs\n\
+      \        import numpy as np\n        import plac\n        import random\n  \
+      \      import warnings\n        from pathlib import Path\n        import spacy\n\
+      \n        fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')\n        with\
+      \ fs.open(filepath, 'rb') as f:\n             data = f.readlines()\n\n     \
+      \   training_data = []\n        for record in data:\n            entities =\
+      \ []\n            read_record = json.loads(record)\n            text = read_record['text']\n\
+      \            entities_record = read_record['labels']\n\n            for start,\
+      \ end, label in entities_record:\n                entities.append((start, end,\
+      \ label))\n\n            training_data.append((text, {\"entities\": entities}))\n\
+      \n        return training_data\n\n    #Converting JSON1 file to Spacy tuples\
+      \ format\n    import sys, subprocess\n    subprocess.run([sys.executable, '-m',\
+      \ 'pip', 'install', 'spacy==2.0.18'])\n    subprocess.run([sys.executable, '-m',\
+      \ 'pip', 'install', 'kfp'])\n    import json\n    import numpy as np\n    import\
+      \ plac\n    import random\n    import warnings\n    from pathlib import Path\n\
+      \    import spacy\n    import logging\n    from spacy.util import minibatch,\
       \ compounding\n    from spacy.gold import GoldParse\n    from spacy.scorer import\
       \ Scorer\n    from kfp.components import create_component_from_func\n\n    filepath\
       \ ='gs://nerdoc/test_data.json1'\n    TRAIN_DATA = convert_doccano_fomart_to_spacy(filepath)\n\
@@ -36,7 +49,7 @@ implementation:
       \ spacy', description='')\n_parser.add_argument(\"--TRAIN-DATA\", dest=\"TRAIN_DATA\"\
       , type=str, required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"\
       --OUTPUT-PATH\", dest=\"OUTPUT_PATH\", type=str, required=True, default=argparse.SUPPRESS)\n\
-      _parser.add_argument(\"--iterations\", dest=\"iterations\", type=str, required=True,\
+      _parser.add_argument(\"--iterations\", dest=\"iterations\", type=str, required=False,\
       \ default=argparse.SUPPRESS)\n_parsed_args = vars(_parser.parse_args())\n\n\
       _outputs = train_spacy(**_parsed_args)\n"
     args:
@@ -44,5 +57,8 @@ implementation:
     - {inputValue: TRAIN_DATA}
     - --OUTPUT-PATH
     - {inputValue: OUTPUT_PATH}
-    - --iterations
-    - {inputValue: iterations}
+    - if:
+        cond: {isPresent: iterations}
+        then:
+        - --iterations
+        - {inputValue: iterations}
