@@ -3,12 +3,11 @@ from __future__ import unicode_literals, print_function
 OUTPUT_PATH = '/content/custom_ner_model'
 
 ################### Train Spacy NER.###########
-def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):
+def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 2):
 
     #Converting JSON1 file to Spacy tuples format
-    import sys, subprocess;
+    import sys, subprocess
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy download en'])
     subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])
     import json
     import numpy as np
@@ -29,7 +28,7 @@ def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):
     if 'ner' not in nlp.pipe_names:
         ner = nlp.create_pipe('ner')
         nlp.add_pipe(ner, last=True)
-       
+
 
     for _, annotations in TRAIN_DATA:
          for ent in annotations.get('entities'):
@@ -57,7 +56,7 @@ def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 20):
     return nlp
 
 
-trainer = train_spacy([], OUTPUT_PATH, 20)
+trainer = train_spacy([], OUTPUT_PATH, 2)
 
     # Save our trained Model
 #Path(OUTPUT_PATH).parent.mkdir(parents=True, exist_ok=True)
