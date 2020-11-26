@@ -19,8 +19,8 @@ implementation:
       \ gcsfs\n    import numpy as np\n    import plac\n    import random\n    import\
       \ warnings\n    from pathlib import Path\n    import spacy\n\n    fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')\n\
       \    with fs.open(filepath, 'rb') as f:\n         data = f.readlines()\n\n \
-      \   training_data = [] \n    for record in data:\n        entities = []\n  \
-      \      read_record = json.loads(record)\n        text = read_record['text']\n\
+      \   training_data = [] \n    for record in data[:1]:\n        entities = []\n\
+      \        read_record = json.loads(record)\n        text = read_record['text']\n\
       \        entities_record = read_record['labels']\n\n        for start, end,\
       \ label in entities_record:\n            entities.append((start, end, label))\n\
       \n        training_data.append((text, {\"entities\": entities}))\n\n    return\
