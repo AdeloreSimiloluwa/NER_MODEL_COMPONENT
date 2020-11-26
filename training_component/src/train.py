@@ -3,12 +3,9 @@ from __future__ import unicode_literals, print_function
 OUTPUT_PATH = '/content/custom_ner_model'
 
 ################### Train Spacy NER.###########
-def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 2):
-
+def train_spacy(TRAIN_DATA, OUTPUT_PATH = '/content/custom_ner_model', iterations = 2) :
+    
     #Converting JSON1 file to Spacy tuples format
-    import sys, subprocess
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'kfp'])
     import json
     import numpy as np
     import plac
@@ -20,10 +17,8 @@ def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 2):
     from spacy.util import minibatch, compounding
     from spacy.gold import GoldParse
     from spacy.scorer import Scorer
-    from kfp.components import create_component_from_func
-
-    filepath ='gs://nerdoc/test_data.json1'
-    TRAIN_DATA = convert_doccano_fomart_to_spacy(filepath)
+    
+    TRAIN_DATA = TRAIN_DATA
     nlp = spacy.blank('en') 
     if 'ner' not in nlp.pipe_names:
         ner = nlp.create_pipe('ner')
@@ -53,7 +48,8 @@ def train_spacy(TRAIN_DATA=[], OUTPUT_PATH=OUTPUT_PATH, iterations = 2):
                     print(error)
                     continue
             print(losses)
-    return nlp
+
+#     return nlp
 
 
 trainer = train_spacy([], OUTPUT_PATH, 2)
@@ -66,4 +62,4 @@ if __name__ == '__main__':
     ocr_conversion = create_component_from_func(
         train_spacy,
         output_component_file='components.yaml',
-        base_image='python:3.7')
+        base_image='python:3.7',packages_to_install=['spacy==2.0.18'])
