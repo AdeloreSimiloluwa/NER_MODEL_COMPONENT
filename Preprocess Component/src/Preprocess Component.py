@@ -7,10 +7,7 @@
 import kfp
 from kfp.components import create_component_from_func
 
-def convert_doccano_fomart_to_spacy(filepath):
-    import sys, subprocess;
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'spacy==2.0.18'])
-    subprocess.run([sys.executable, '-m', 'pip', 'install', 'gcsfs'])
+def convert_doccano_fomart_to_spacy(filepath) -> list:
     import json
     import gcsfs
     import numpy as np
@@ -24,8 +21,8 @@ def convert_doccano_fomart_to_spacy(filepath):
     with fs.open(filepath, 'rb') as f:
          data = f.readlines()
 
-    training_data = []
-    for record in data:
+    training_data = [] 
+    for record in data[:1]:
         entities = []
         read_record = json.loads(record)
         text = read_record['text']
@@ -39,10 +36,8 @@ def convert_doccano_fomart_to_spacy(filepath):
     return training_data
 
 if __name__ == '__main__':
-    ocr_conversion = create_component_from_func(
+    convert_doccano_fomart_to_spacy = create_component_from_func(
         convert_doccano_fomart_to_spacy,
         output_component_file='component.yaml',
-        base_image='python:3.7')
-
-        training_data.append((text, {"entities": entities}))
+        base_image='python:3.7', packages_to_install=['spacy==2.0.18', 'gcsfs'])
 
