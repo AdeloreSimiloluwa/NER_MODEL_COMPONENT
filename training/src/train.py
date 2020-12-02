@@ -22,12 +22,11 @@ def train(argv=None):
 
 
     def train_spacy(argv=None):
+        # read processed training data from GCS bucket
         fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
         with fs.open(known_args.input_dir, 'r') as f:
             TRAIN_DATA = json.load(f)
             print(TRAIN_DATA)
-        # with open('training_data.txt', 'r') as f:
-        #     TRAIN_DATA = json.load(f)
 
         nlp = spacy.blank('en') 
         if 'ner' not in nlp.pipe_names:
@@ -61,10 +60,14 @@ def train(argv=None):
         
         return nlp
     trainer = train_spacy()
+
+    # save model to disk or GCS--- This is where we our issue starts from. We 
+    #can't save to GCS
     trainer.to_disk(known_args.output_dir)
-    # Save our trained Model
+  
+
+    Path(known_args.output_model_path_file).parent.mkdir(parents=True, exist_ok=True)
     Path(known_args.output_model_path_file).write_text(known_args.output_dir)
-    Path(known_args.output_dir).parent.mkdir(parents=True, exist_ok=True)
     
 
 if __name__ == '__main__':

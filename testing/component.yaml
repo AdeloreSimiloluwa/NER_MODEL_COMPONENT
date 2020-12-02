@@ -1,0 +1,20 @@
+name:  Train ner model
+description:  Train ner model
+inputs:
+- {name: input_data_path,  type: GCSPath}
+- {name: output_model_uri, type: GCSPath}
+- {name: model_dir_uri, type: GCSPath}
+outputs:
+- {name: output_model_uri, type: GCSPath}
+
+implementation:
+  container:
+    image: gcr.io/mlops-kubeflow-00/ner/test:latest
+    command: [
+      python3, /pipelines/component/src/test.py,
+      --input_dir,             {inputValue: input_data_path},
+      --output_dir,             {inputValue: output_model_uri},
+      --model_dir,              {inputValue: model_dir_uri},
+      
+      --output-model-path-file, {outputPath: output_model_uri},
+    ]

@@ -19,6 +19,7 @@ def convert_doccano_fomart_to_spacy(argv=None):
     known_args, pipeline_args = parser.parse_known_args(argv)
     #read from gcs bucket
 
+    #download training data from GCS
     fs = gcsfs.GCSFileSystem(project='mlops-kubeflow-00')
     with fs.open(known_args.input_path, 'rb') as f:
         data = f.readlines()
@@ -36,15 +37,14 @@ def convert_doccano_fomart_to_spacy(argv=None):
             entities.append((start, end, label))
 
         training_data.append((text, {"entities": entities}))
-        #print(training_data)
-        #with file_io.FileIO(os.path.join(known_args.output_dir, "training_data.txt"), mode = 'w') as f:
+    
+    # write processed training file to GCS
     with fs.open(os.path.join(known_args.output_dir), 'w') as f:
         json.dump(training_data, f)
         #return training_data
 
     Path(known_args.output_model_path_file).parent.mkdir(parents=True, exist_ok=True)
     Path(known_args.output_model_path_file).write_text(known_args.output_dir)
-    # return training_data
 
 if __name__ == '__main__':
    convert_doccano_fomart_to_spacy()
